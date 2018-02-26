@@ -1,0 +1,20 @@
+{
+  "name": "dmp",
+  "version": "1.1.13",
+  "description": "download patch from maillist in cli",
+  "main": "dmp.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "defeng.liu",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^2.3.0",
+    "iconv": "^2.3.0",
+    "inquirer": "^5.0.1",
+    "inquirer-autocomplete-prompt": "^0.12.1",
+    "mailparser": "^2.1.0",
+    "node-ssh": "^5.1.0",
+    "progress": "^2.0.0"
+  }
+}

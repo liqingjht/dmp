@@ -1,0 +1,37 @@
+From 5d450bbdd79c5546fa9e49efc084e3c616133d6e Mon Sep 17 00:00:00 2001
+From: liqingjht <liqingjht@163.com>
+Date: Thu, 8 Feb 2018 08:51:44 +0800
+Subject: [PATCH] highlight selected line
+
+Signed-off-by: liqingjht <liqingjht@163.com>
+---
+ node_modules/inquirer/lib/prompts/checkbox.js |   13 +++++++++++--
+ 1 files changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/node_modules/inquirer/lib/prompts/checkbox.js b/node_modules/inquirer/lib/prompts/checkbox.js
+index ace31a1..c05224d 100644
+--- a/node_modules/inquirer/lib/prompts/checkbox.js
++++ b/node_modules/inquirer/lib/prompts/checkbox.js
+@@ -221,8 +221,17 @@ function renderChoices(choices, pointer) {
+     } else {
+       var isSelected = i - separatorOffset === pointer;
+       output += isSelected ? (chalk.cyan(figures.pointer) + " ") : "   ";
+-      output += getCheckbox(choice.checked) + ' ';
+-      output += (choice.checked)? chalk.green(choice.name): choice.name;
++      let checkbox = getCheckbox(choice.checked) + ' ';
++      output += isSelected? chalk.cyan(checkbox): checkbox;
++      if(choice.checked) {
++        output += chalk.green(choice.name);
++      }
++      else if(isSelected) {
++      	output += chalk.cyan(choice.name);
++      }
++      else {
++        output += choice.name;
++      }
+     }
+ 
+     output += '\n';
+-- 
+1.7.0.4
+

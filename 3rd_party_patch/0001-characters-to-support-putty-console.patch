@@ -1,0 +1,119 @@
+From b37b798b76cf9c7fa2d63bf8d9535b5d6e1eaf53 Mon Sep 17 00:00:00 2001
+From: liqingjht <liqingjht@163.com>
+Date: Thu, 1 Feb 2018 16:25:42 +0800
+Subject: [PATCH] characters to support putty console
+
+Signed-off-by: liqingjht <liqingjht@163.com>
+---
+ .../inquirer-autocomplete-prompt/figures.js        |    5 +++++
+ node_modules/inquirer-autocomplete-prompt/index.js |    2 +-
+ node_modules/inquirer/lib/figures.js               |    5 +++++
+ node_modules/inquirer/lib/prompts/checkbox.js      |    7 ++++---
+ node_modules/inquirer/lib/prompts/list.js          |    2 +-
+ node_modules/mailparser/lib/mail-parser.js         |    8 +++++---
+ 6 files changed, 21 insertions(+), 8 deletions(-)
+ create mode 100644 node_modules/inquirer-autocomplete-prompt/figures.js
+ create mode 100644 node_modules/inquirer/lib/figures.js
+
+diff --git a/node_modules/inquirer-autocomplete-prompt/figures.js b/node_modules/inquirer-autocomplete-prompt/figures.js
+new file mode 100644
+index 0000000..b8824b2
+--- /dev/null
++++ b/node_modules/inquirer-autocomplete-prompt/figures.js
+@@ -0,0 +1,5 @@
++module.exports = {
++	pointer: "=>",
++	radioOn: "[ * ]",
++	radioOff: "[   ]"
++}
+diff --git a/node_modules/inquirer-autocomplete-prompt/index.js b/node_modules/inquirer-autocomplete-prompt/index.js
+index c6fde11..ecf273a 100644
+--- a/node_modules/inquirer-autocomplete-prompt/index.js
++++ b/node_modules/inquirer-autocomplete-prompt/index.js
+@@ -4,7 +4,7 @@
+ 
+ var util = require('util');
+ var chalk = require('chalk');
+-var figures = require('figures');
++var figures = require('./figures.js');
+ var runAsync = require('run-async');
+ var Base = require('inquirer/lib/prompts/base');
+ var Choices = require('inquirer/lib/objects/choices');
+diff --git a/node_modules/inquirer/lib/figures.js b/node_modules/inquirer/lib/figures.js
+new file mode 100644
+index 0000000..b8824b2
+--- /dev/null
++++ b/node_modules/inquirer/lib/figures.js
+@@ -0,0 +1,5 @@
++module.exports = {
++	pointer: "=>",
++	radioOn: "[ * ]",
++	radioOff: "[   ]"
++}
+diff --git a/node_modules/inquirer/lib/prompts/checkbox.js b/node_modules/inquirer/lib/prompts/checkbox.js
+index 5566a16..ace31a1 100644
+--- a/node_modules/inquirer/lib/prompts/checkbox.js
++++ b/node_modules/inquirer/lib/prompts/checkbox.js
+@@ -6,7 +6,7 @@
+ var _ = require('lodash');
+ var chalk = require('chalk');
+ var cliCursor = require('cli-cursor');
+-var figures = require('figures');
++var figures = require('../figures.js');
+ var Base = require('./base');
+ var observe = require('../utils/events');
+ var Paginator = require('../utils/paginator');
+@@ -220,8 +220,9 @@ function renderChoices(choices, pointer) {
+       output += ' (' + (_.isString(choice.disabled) ? choice.disabled : 'Disabled') + ')';
+     } else {
+       var isSelected = i - separatorOffset === pointer;
+-      output += isSelected ? chalk.cyan(figures.pointer) : ' ';
+-      output += getCheckbox(choice.checked) + ' ' + choice.name;
++      output += isSelected ? (chalk.cyan(figures.pointer) + " ") : "   ";
++      output += getCheckbox(choice.checked) + ' ';
++      output += (choice.checked)? chalk.green(choice.name): choice.name;
+     }
+ 
+     output += '\n';
+diff --git a/node_modules/inquirer/lib/prompts/list.js b/node_modules/inquirer/lib/prompts/list.js
+index e458f03..4e28699 100644
+--- a/node_modules/inquirer/lib/prompts/list.js
++++ b/node_modules/inquirer/lib/prompts/list.js
+@@ -5,7 +5,7 @@
+ 
+ var _ = require('lodash');
+ var chalk = require('chalk');
+-var figures = require('figures');
++var figures = require('../figures.js');
+ var cliCursor = require('cli-cursor');
+ var runAsync = require('run-async');
+ var Base = require('./base');
+diff --git a/node_modules/mailparser/lib/mail-parser.js b/node_modules/mailparser/lib/mail-parser.js
+index 45868a1..50f5d3d 100644
+--- a/node_modules/mailparser/lib/mail-parser.js
++++ b/node_modules/mailparser/lib/mail-parser.js
+@@ -8,7 +8,8 @@ const Splitter = mailsplit.Splitter;
+ const punycode = require('punycode');
+ const FlowedDecoder = require('./flowed-decoder');
+ const StreamHash = require('./stream-hash');
+-const iconv = require('iconv-lite');
++const iconv = require('iconv-lite');
++//const Iconv = require('iconv').Iconv;
+ const htmlToText = require('html-to-text');
+ const he = require('he');
+ const linkify = require('linkify-it')();
+@@ -668,8 +669,9 @@ class MailParser extends Transform {
+                         )
+                     ) {
+                         try {
+-                            let decodeStream = iconv.decodeStream(charset);
+-                            contentStream.on('error', err => {
++                            let decodeStream = iconv.decodeStream(charset);
++                            //let decodeStream = Iconv('ascii', charset);
++			    contentStream.on('error', err => {
+                                 decodeStream.emit('error', err);
+                             });
+                             contentStream.pipe(decodeStream);
+-- 
+1.7.0.4
+
