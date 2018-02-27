@@ -1,6 +1,8 @@
 # dmp - download mail patch
 download patch from server mail folder as eml or diff format with cli command
 
+----------
+
 #### overview: ####
 
 We should remote login windows server firstly, then use putty to login ubuntu to develop in remvoe window.
@@ -16,6 +18,20 @@ So if I receive a patch and I want to apply it to project, I need to do followin
 with dmp, I just typo 'dmp' in cli command and select which patch(es) I want to download, then it done.
 
 I can also check the patch as diff format with 'dmp -p'
+
+----------
+#### Develop: ####
+
+1. git clone https://github.com/liqingjht/dmp.git
+2. cd dmp/src
+3. git install
+4. modify 3rd files as patches
+
+	patch 1: fix the issue that characters can not display well in putty console.
+	
+	patch 2: highlight the selected line with checkbox	
+
+5. ./release.sh to release version for users to ../dmp-release
 
 ----------
 
