@@ -440,7 +440,15 @@ function isUndefined(...rest) {
 }
 
 function handleReceiveBox(mailboxes, to) {
-	let v = to.value;
+	let v = [];
+	if(Array.isArray(to)) {
+		for(let i=0; i<to.length; i++) {
+			v.concat(to[i].value);
+		}
+	}
+	else {
+		v = to.value;
+	}
 	let len = v.length;
 	if(len === 0) {
 		return [true];
