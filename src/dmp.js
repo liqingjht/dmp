@@ -19,7 +19,7 @@ const ignores = ["bugzilla-daemon", "mailer-daemon"];
 
 const q = process.exit;
 const l = console.log;
-const e = (msg) => {l(chalk.red(msg))}
+const e = (...msg) => {l(chalk.red(msg.join('\n')))}
 const help = () => {
 	let msg = `  dmp usages:
 	
@@ -470,21 +470,15 @@ function handleReceiveBox(mailboxes, to) {
 }
 
 function handleNumberFormat(...rest) {
-	let arr = [];
 	for(let i=0; i<rest.length; i++) {
-		let num = rest[i];
-		let str = Number(num).toString().padStart(2, "0");
-		arr.push(str);
+		rest[i] = Number(rest[i]).toString().padStart(2, "0");
 	}
-	return arr;
+	return rest;
 }
 
 function handleDirname(...rest) {
-	let arr = [];
 	for(let i=0; i<rest.length; i++) {
-		let p = rest[i];
-		let dp = path.join(__dirname, p);
-		arr.push(dp);
+		rest[i] = path.join(__dirname, rest[i]);
 	}
-	return arr;
+	return rest;
 }
