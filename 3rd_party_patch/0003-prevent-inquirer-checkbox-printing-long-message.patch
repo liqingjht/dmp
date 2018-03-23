@@ -1,0 +1,26 @@
+From 49a73fde681187abecafb58b1227d6e447b4991d Mon Sep 17 00:00:00 2001
+From: defeng.liu <defeng.liu@dniserver.dnish.net>
+Date: Fri, 23 Mar 2018 15:47:11 +0800
+Subject: [PATCH] prevent inquirer checkbox printing long message
+
+Signed-off-by: defeng.liu <defeng.liu@dniserver.dnish.net>
+---
+ node_modules/inquirer/lib/prompts/checkbox.js |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/node_modules/inquirer/lib/prompts/checkbox.js b/node_modules/inquirer/lib/prompts/checkbox.js
+index c05224d..39059f6 100644
+--- a/node_modules/inquirer/lib/prompts/checkbox.js
++++ b/node_modules/inquirer/lib/prompts/checkbox.js
+@@ -93,7 +93,7 @@ class CheckboxPrompt extends Base {
+ 
+     // Render choices or answer depending on the state
+     if (this.status === 'answered') {
+-      message += chalk.cyan(this.selection.join(', '));
++      message += chalk.cyan(`selected ${this.selection.length} items`);//chalk.cyan(this.selection.join(', '));
+     } else {
+       var choicesStr = renderChoices(this.opt.choices, this.pointer);
+       var indexPosition = this.opt.choices.indexOf(
+-- 
+1.7.0.4
+
