@@ -1,6 +1,6 @@
 #!/home/liqingjht/mybin/node
 const inquirer = require('inquirer');
-const simpleParser = require("mailparser").simpleParser;
+const {simpleParser} = require("mailparser");
 const autocomplete = require('inquirer-autocomplete-prompt');
 const chalk = require("chalk");
 const ProgressBar = require("progress");
@@ -287,9 +287,11 @@ else {
 			choices: patches,
 		})
 
+		l('');
 		len = selPatches.length;
 		selPatches.reverse();
 		let patchIdx = 1;
+		let applyTask = [];
 		for(let i=0; i<len; i++) {
 			try {
 				let {file, sub} = selPatches[i];
@@ -299,6 +301,7 @@ else {
 				let fromPath = path.join(mf, `./${file}`);
 				if(parseMail === false) {
 					execSync(`cp "${fromPath}" "${savePath}"`);
+					applyTask.push(savePath);
 				}
 				else {
 					try {
@@ -329,12 +332,14 @@ else {
 						fs.writeFileSync(path.join(tmp, 'info'), saver, 'utf-8');
 						execSync(`cat info msg patch >result; cp result "${savePath}"`, {'cwd': tmp});
 						execSync(`cp result "${savePath}"`, {'cwd': tmp});
+						applyTask.push(savePath);
 					}
 					catch(parseErr) {
 						savePath = savePath.replace(/^(.*\/[^\/]+)\.patch$/, '$1.eml');
 						execSync(`cp "${fromPath}" "${savePath}"`);
 						l(chalk.yellow(`>>> ${name}`));
 						patchIdx ++;
+						applyTask.push(savePath);
 						continue;
 					}
 				}
@@ -346,6 +351,60 @@ else {
 				e(err.message);
 			}
 		}
+
+		if(applyTask.length === 0)
+			return;
+		l('');
+		let {toApply} = await inquirer.prompt({
+			name: "toApply",
+			type: "confirm",
+			message: "Do you want to apply these patches? "
+		})
+
+		if(toApply !== true)
+			return;
+
+		try {
+			execSync('git am --abort 2>/dev/null', {'cwd': cwd});
+		}
+		catch(err) {/*do nothing*/}
+
+		for(let i=0; i<applyTask.length; i++) {
+			let task = applyTask[i];
+			let name = path.basename(task);
+			try {
+				execSync(`git am ${task}`, {'cwd': cwd});
+				l(chalk.green(`\n>>> [Applied] ${name}\n`));
+			}
+			catch(err) {
+				l(chalk.red(`\n>>> [Error] ${name}`));
+				l('\nAbort apply actions because of above error message');
+				q();
+			}
+		}
+
+		l('')
+		let {toDel} = await inquirer.prompt({
+			name: "toDel",
+			type: "confirm",
+			message: "Do you want to delete these patches? "
+		})
+
+		if(toDel !== true)
+			return;
+
+		for(let i=0; i<applyTask.length; i++) {
+			let task = applyTask[i];
+			let name = path.basename(task);
+			try {
+				fs.unlinkSync(task);
+				l(chalk.yellow(`>>> [Deleted] ${name}`));
+			}
+			catch(err) {
+				l(chalk.red(`>>> [Error] ${name}`));
+			}
+		}
+		l('');
 	}
 	catch(err) {
 		e(err.message);
@@ -431,19 +490,17 @@ function handleSaveName(name, ext) {
 }
 
 function isUndefined(...rest) {
-	for(let i=0; i<rest.length; i++) {
-		if(rest[i] === undefined) {
-			return true;
-		}
-	}
-	return false;
+	return rest.some(v => v === undefined);
 }
 
 function handleReceiveBox(mailboxes, to) {
 	let v = [];
 	if(Array.isArray(to)) {
 		for(let i=0; i<to.length; i++) {
-			v.concat(to[i].value);
+			let val = to[i].value;
+			if(val !== undefined && val.length > 0) {
+				v.concat(to[i].value);
+			}
 		}
 	}
 	else {
