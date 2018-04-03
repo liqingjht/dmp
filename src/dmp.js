@@ -19,7 +19,7 @@ const ignores = ["bugzilla-daemon", "mailer-daemon"];
 
 const q = process.exit;
 const l = console.log;
-const e = (...msg) => {l(chalk.red(msg.join('\n')))}
+const e = (...msg) => {l(chalk.red(msg.join(' ')))}
 const help = () => {
 	let msg = `  dmp usages:
 	
@@ -124,6 +124,16 @@ else {
 		}
 		let files = result.stdout.split("\n");
 
+		result = await ssh.execCommand('ls', { cwd: `/home/${user}/Maildir/new/`});
+		if(result.code !== 0) {
+			e(result.stderr);
+			q();
+		}
+		let newFiles = result.stdout.split("\n");
+		files = files.concat(newFiles);
+
+		files = files.filter(v => v.trim() !== '');
+
 		result = await ssh.execCommand('ls', { cwd: '/mailman/archives/private/'});
 		if(result.code !== 0) {
 			e(result.stderr);
@@ -158,7 +168,10 @@ else {
 		});
 		for(let i=0; i<len; i++) {
 			try {
-				await ssh.getFile(path.join(mf, down[i]), `/home/${user}/Maildir/cur/${down[i]}`);
+				let mail = down[i];
+				let dir = newFiles.includes(mail)? 'new': 'cur';
+				let serPath = `/home/${user}/Maildir/${dir}/${mail}`;
+				await ssh.getFile(path.join(mf, mail), serPath);
 				progressBar.tick();
 			}
 			catch(err) {
